@@ -70,7 +70,7 @@ const winner = computed(() => {
   const [homeScore, visitorScore] = finalScore.split('-').map(Number)
   if (homeScore > visitorScore) return 'home'
   if (visitorScore > homeScore) return 'visitor'
-  return nullx
+  return null
 })
 
 const isSinglePeriodView = computed(() =>
