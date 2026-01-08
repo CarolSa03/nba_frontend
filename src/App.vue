@@ -119,7 +119,7 @@
             Refresh
           </Button>
         </div>
-        <div v-else class="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-start">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-start">
           <GameCard
             v-for="game in games"
             :key="game.id || `${game.date}-${game.final_score}`"
@@ -128,7 +128,6 @@
           />
         </div>
       </div>
-
   </div>
 </template>
 
