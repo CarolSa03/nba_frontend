@@ -1,13 +1,15 @@
 <template>
-  <div class="game-card" :class="{ 'has-ties': game.tied_quarters?.length }">
-    <Card class="overflow-hidden hover:shadow-2xl transition-all duration-200 hover:-translate-y-1">
+  <div class="game-card h-full flex flex-col" :class="{ 'has-ties': game.tied_quarters?.length }">
+    <Card class="flex-1 overflow-hidden hover:shadow-2xl transition-all duration-200 hover:-translate-y-1">
       <div class="p-6 space-y-3">
-        <div class="flex items-start justify-between">
-          <div class="text-sm font-medium text-muted-foreground">
-            {{ formatDate(game.date) }}
-          </div>
-          <div class="text-2xl font-bold text-card-foreground tracking-tight">
-            {{ viewType === 'regulation' ? game.regulation_score : game.final_score }}
+        <div class="p-6 space-y-3 flex-1 flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div class="text-sm font-medium text-muted-foreground">
+              {{ formatDate(game.date) }}
+            </div>
+            <div class="text-2xl font-bold text-card-foreground tracking-tight">
+              {{ viewType === 'regulation' ? game.regulation_score : game.final_score }}
+            </div>
           </div>
         </div>
 
@@ -178,3 +180,4 @@ const extractPeriodScore = (periodStr) => {
 }
 
 </style>
+
