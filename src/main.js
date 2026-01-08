@@ -4,7 +4,6 @@ import { useDark, usePreferredDark } from '@vueuse/core'
 import App from './App.vue'
 
 const app = createApp(App)
-const isDark = useDark()
 usePreferredDark()
-
+useDark({ value: true, selector: 'html' })
 app.mount('#app')
