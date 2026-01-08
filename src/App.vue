@@ -209,21 +209,22 @@ const fetchGames = async () => {
 
     let filteredGames = data.games || []
 
-    if (teamA.value || teamB.value) {
-      if (teamA.value && teamB.value) {
-        filteredGames = filteredGames.filter(game =>
-          (game.home_team.includes(teamA.value) && game.visitor_team.includes(teamB.value)) ||
-          (game.home_team.includes(teamB.value) && game.visitor_team.includes(teamA.value))
+    if (tiedOnly.value) {
+      filteredGames = filteredGames.filter(game => game.has_ot === true)
+    }
+
+    if (teamA.value && teamB.value) {
+      filteredGames = filteredGames.filter(game =>
+        (game.home_team.includes(teamA.value) && game.visitor_team.includes(teamB.value)) ||
+        (game.home_team.includes(teamB.value) && game.visitor_team.includes(teamA.value))
+      )
+    } else if (teamA.value || teamB.value) {
+      const teamNames = [teamA.value, teamB.value].filter(Boolean)
+      filteredGames = filteredGames.filter(game =>
+        teamNames.some(team =>
+          game.home_team.includes(team) || game.visitor_team.includes(team)
         )
-      } else {
-        const teamNames = [teamA.value, teamB.value].filter(Boolean)
-        filteredGames = filteredGames.filter(game =>
-          teamNames.some(team =>
-            game.home_team.includes(team) ||
-            game.visitor_team.includes(team)
-          )
-        )
-      }
+      )
     }
 
     games.value = filteredGames
