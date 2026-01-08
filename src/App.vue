@@ -53,6 +53,16 @@
               >
                 Clear teams
               </Button>
+
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                @click="toggleDark" 
+                class="w-10 h-10 p-0 rounded-full hover:bg-accent hover:scale-105 transition-all duration-200"
+              >
+                <Moon class="h-5 w-5" v-if="isDark" />
+                <Sun class="h-5 w-5" v-else />
+              </Button>
             </div>
           </div>
 
@@ -129,6 +139,8 @@ import {
   SelectContent,
   SelectItem
 } from '@/components/ui/select'
+import { Sun, Moon } from 'lucide-vue-next'
+import { useDark } from '@vueuse/core'
 
 const games = ref([])
 const apiGames = ref(0)
@@ -145,6 +157,12 @@ const viewType = ref('quarters')
 const tiedOnly = ref(false)
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/';
+
+const isDark = useDark({ selector: 'html' })
+
+const toggleDark = () => {
+  isDark.value = !isDark.value
+}
 
 const resetTeams = () => {
   teamA.value = ''
