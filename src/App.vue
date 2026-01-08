@@ -115,12 +115,6 @@
 
       <div v-else class="mt-8 space-y-4">
         <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          <p class="text-2xl font-bold">
-            {{ results }} {{ results === 1 ? 'game' : 'games' }} found
-            <span v-if="apiGames !== results" class="text-muted-foreground text-sm">
-              ({{ apiGames }} from API)
-            </span>
-          </p>
           <Button @click="fetchGames" :disabled="loading" variant="outline" size="sm">
             Refresh
           </Button>
@@ -211,28 +205,28 @@ const fetchGames = async () => {
 
     let filteredGames = data.games || []
 
-    if (teamFilter.value) {
-      filteredGames = filteredGames.filter(game =>
-        game.home_team.includes(teamFilter.value) ||
-        game.visitor_team.includes(teamFilter.value)
-      )
-    }
-
-    if (teamA.value && teamB.value) {
-      filteredGames = filteredGames.filter(game =>
-        (game.home_team.includes(teamA.value) && game.visitor_team.includes(teamB.value)) ||
-        (game.home_team.includes(teamB.value) && game.visitor_team.includes(teamA.value))
-      )
-    }
-
-    else if (teamA.value || teamB.value) {
-      const teamNames = [teamA.value, teamB.value].filter(Boolean)
-      filteredGames = filteredGames.filter(game =>
-        teamNames.some(team =>
-          game.home_team.includes(team) ||
-          game.visitor_team.includes(team)
+    if (!tiedOnly.value) {
+      if (teamFilter.value) {
+        filteredGames = filteredGames.filter(game =>
+          game.home_team.includes(teamFilter.value) ||
+          game.visitor_team.includes(teamFilter.value)
         )
-      )
+      }
+
+      if (teamA.value && teamB.value) {
+        filteredGames = filteredGames.filter(game =>
+          (game.home_team.includes(teamA.value) && game.visitor_team.includes(teamB.value)) ||
+          (game.home_team.includes(teamB.value) && game.visitor_team.includes(teamA.value))
+        )
+      } else if (teamA.value || teamB.value) {
+        const teamNames = [teamA.value, teamB.value].filter(Boolean)
+        filteredGames = filteredGames.filter(game =>
+          teamNames.some(team =>
+            game.home_team.includes(team) ||
+            game.visitor_team.includes(team)
+          )
+        )
+      }
     }
 
     games.value = filteredGames
@@ -246,6 +240,7 @@ const fetchGames = async () => {
     loading.value = false
   }
 }
+
 
 
 onMounted(() => {
