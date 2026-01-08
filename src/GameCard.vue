@@ -7,7 +7,7 @@
             {{ formatDate(game.date) }}
           </div>
           <div class="text-2xl font-bold text-card-foreground tracking-tight">
-            {{ viewType === 'quarters' ? game.final_score : game.regulation_score }}
+            {{ viewType === 'regulation' ? game.regulation_score : game.final_score }}
           </div>
         </div>
 
