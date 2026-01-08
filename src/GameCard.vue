@@ -13,11 +13,11 @@
 
         <div class="flex items-center justify-between gap-2 mb-4">
           <div class="flex-1">
-            <div class="team-badge">{{ game.home_team }}</div>
+            <div class="team-badge" :class="{ winner: winner === 'home' }">{{ game.home_team }}</div>
           </div>
           <div class="text-muted-foreground font-bold text-lg px-4">VS</div>
           <div class="flex-1">
-            <div class="team-badge visitor">{{ game.visitor_team }}</div>
+            <div class="team-badge visitor" :class="{ winner: winner === 'visitor' }">{{ game.visitor_team }}</div>
           </div>
         </div>
 
@@ -36,10 +36,6 @@
             <span class="quarter-score">{{ period }}</span>
           </div>
         </div>
-
-        <span v-if="game.has_ot" class="custom-badge">
-          OT
-        </span>
 
         <div v-if="game.tied_quarters?.length" class="ties mt-3">
           <div class="text-xs font-medium text-destructive-foreground uppercase tracking-wide mb-1">
@@ -67,6 +63,14 @@ const props = defineProps({
     type: String,
     default: 'quarters'
   }
+})
+
+const winner = computed(() => {
+  const finalScore = props.game?.final_score || '0-0'
+  const [homeScore, visitorScore] = finalScore.split('-').map(Number)
+  if (homeScore > visitorScore) return 'home'
+  if (visitorScore > homeScore) return 'visitor'
+  return nullx
 })
 
 const isSinglePeriodView = computed(() =>
