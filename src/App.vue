@@ -201,24 +201,17 @@ const fetchGames = async () => {
     params.append('view', viewType.value)
 
     const res = await fetch(`${API_BASE}/api/games?${params}`)
-    let data = await res.json()
+    const data = await res.json()
 
     let filteredGames = data.games || []
 
-    if (!tiedOnly.value) {
-      if (teamFilter.value) {
-        filteredGames = filteredGames.filter(game =>
-          game.home_team.includes(teamFilter.value) ||
-          game.visitor_team.includes(teamFilter.value)
-        )
-      }
-
+    if (teamA.value || teamB.value) {
       if (teamA.value && teamB.value) {
         filteredGames = filteredGames.filter(game =>
           (game.home_team.includes(teamA.value) && game.visitor_team.includes(teamB.value)) ||
           (game.home_team.includes(teamB.value) && game.visitor_team.includes(teamA.value))
         )
-      } else if (teamA.value || teamB.value) {
+      } else {
         const teamNames = [teamA.value, teamB.value].filter(Boolean)
         filteredGames = filteredGames.filter(game =>
           teamNames.some(team =>
@@ -240,8 +233,6 @@ const fetchGames = async () => {
     loading.value = false
   }
 }
-
-
 
 onMounted(() => {
   fetchTeams()
