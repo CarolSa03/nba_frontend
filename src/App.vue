@@ -104,28 +104,42 @@
       </Card>
     </div>
 
-    <div v-if="loading" class="flex flex-col items-center justify-center py-24 text-center">
-      <div class="w-16 h-16 border-4 border-border border-t-primary rounded-full animate-spin mb-6"></div>
-      <p class="text-xl text-muted-foreground">Loading games...</p>
-    </div>
+      <div v-if="loading" class="flex flex-col items-center justify-center py-24 text-center">
+        <div class="w-16 h-16 border-4 border-border border-t-primary rounded-full animate-spin mb-6"></div>
+        <p class="text-xl text-muted-foreground">Loading games...</p>
+      </div>
 
-    <div v-else-if="!games.length" class="flex flex-col items-center justify-center py-24 text-center">
-      <h2 class="text-3xl font-bold text-muted-foreground mb-2">No games found</h2>
-    </div>
+      <div v-else-if="!games.length" class="flex flex-col items-center justify-center py-24 text-center">
+        <h2 class="text-3xl font-bold text-muted-foreground mb-2">No games found</h2>
+      </div>
+    
+      <div v-else class="mt-8 space-y-4">
+        <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <p class="text-2xl font-bold">
+            {{ results }} {{ results === 1 ? 'game' : 'games' }} found
+            <span v-if="apiGames !== results" class="text-muted-foreground text-sm">
+              ({{ apiGames }} from API)
+            </span>
+          </p>
+          <Button @click="fetchGames" :disabled="loading" variant="outline" size="sm">
+            Refresh
+          </Button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <GameCard
+            v-for="game in games"
+            :key="game.id || `${game.date}-${game.final_score}`"
+            :game="game"
+            :view-type="viewType"
+          />
+        </div>
+      </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <GameCard
-        v-for="game in games"
-        :key="game.id || `${game.date}-${game.final_score}`"
-        :game="game"
-        :view-type="viewType"
-      />
-    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import GameCard from './GameCard.vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -159,6 +173,10 @@ const tiedOnly = ref(false)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/';
 
 const isDark = useDark({ selector: 'html' })
+
+watch([startDate, endDate, teamA, teamB, viewType, tiedOnly], () => {
+  fetchGames()
+}, { deep: true })
 
 const toggleDark = () => {
   isDark.value = !isDark.value
@@ -232,20 +250,5 @@ const fetchGames = async () => {
 
 onMounted(() => {
   fetchTeams()
-  fetchGames()
 })
 </script>
-
-<style scoped>
-.games-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 1.5rem;
-}
-
-@media (max-width: 768px) {
-  .games-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
