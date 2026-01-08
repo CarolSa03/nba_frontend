@@ -115,11 +115,17 @@
 
       <div v-else class="mt-8 space-y-4">
         <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+          <p class="text-2xl font-bold">
+            {{ results }} {{ results === 1 ? 'game' : 'games' }} found
+            <span v-if="apiGames !== results" class="text-muted-foreground text-sm ml-2">
+              ({{ apiGames }} from API)
+            </span>
+          </p>
           <Button @click="fetchGames" :disabled="loading" variant="outline" size="sm">
             Refresh
           </Button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <GameCard
             v-for="game in games"
             :key="game.id || `${game.date}-${game.final_score}`"
