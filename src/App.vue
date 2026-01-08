@@ -112,7 +112,7 @@
       <div v-else-if="!games.length" class="flex flex-col items-center justify-center py-24 text-center">
         <h2 class="text-3xl font-bold text-muted-foreground mb-2">No games found</h2>
       </div>
-    
+
       <div v-else class="mt-8 space-y-4">
         <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <p class="text-2xl font-bold">
@@ -125,7 +125,7 @@
             Refresh
           </Button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
           <GameCard
             v-for="game in games"
             :key="game.id || `${game.date}-${game.final_score}`"
