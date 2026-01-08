@@ -201,7 +201,6 @@ const fetchGames = async () => {
     const params = new URLSearchParams()
     if (startDate.value) params.append('start_date', startDate.value)
     if (endDate.value) params.append('end_date', endDate.value)
-    if (tiedOnly.value) params.append('tied_only', 'true')
     params.append('view', viewType.value)
 
     const res = await fetch(`${API_BASE}/api/games?${params}`)
