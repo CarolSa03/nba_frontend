@@ -83,7 +83,11 @@
               </Select>
             </div>
             <div class="flex items-center p-4 border rounded-lg">
-              <Checkbox id="ties" v-model:checked="tiedOnly" />
+              <input
+                id="ties"
+                type="checkbox"
+                v-model="tiedOnly"
+              />
               <Label for="ties" class="ml-3 font-medium cursor-pointer">
                 Ties Only
               </Label>
@@ -173,8 +177,9 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api
 const isDark = useDark({ selector: 'html' })
 
 watch([startDate, endDate, teamA, teamB, viewType, tiedOnly], () => {
-  fetchGames()
-}, { deep: true })
+  console.log('Watch triggered, tiedOnly:', tiedOnly.value);
+  fetchGames();
+}, { deep: true });
 
 const toggleDark = () => {
   isDark.value = !isDark.value
