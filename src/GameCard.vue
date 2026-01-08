@@ -13,13 +13,18 @@
 
         <div class="flex items-center justify-between gap-2 mb-4">
           <div class="flex-1">
-            <div class="team-badge" :class="{ winner: winner === 'home' }">{{ game.home_team }}</div>
+            <div class="team-badge" :class="{ winner: winner === 'visitor' }">
+              {{ game.visitor_team }}
+            </div>
           </div>
           <div class="text-muted-foreground font-bold text-lg px-4">VS</div>
           <div class="flex-1">
-            <div class="team-badge visitor" :class="{ winner: winner === 'visitor' }">{{ game.visitor_team }}</div>
+            <div class="team-badge visitor" :class="{ winner: winner === 'home' }">
+              {{ game.home_team }}
+            </div>
           </div>
         </div>
+
 
         <div v-if="isSinglePeriodView" class="period-view text-center">
           <div class="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-2">
