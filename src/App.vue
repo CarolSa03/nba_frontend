@@ -113,7 +113,7 @@
       <h2 class="text-3xl font-bold text-muted-foreground mb-2">No games found</h2>
     </div>
 
-    <div v-else class="games-grid mt-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <GameCard
         v-for="game in games"
         :key="game.id || `${game.date}-${game.final_score}`"
@@ -239,7 +239,7 @@ onMounted(() => {
 <style scoped>
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 1.5rem;
 }
 
