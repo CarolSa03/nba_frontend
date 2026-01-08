@@ -147,7 +147,7 @@ const apiGames = ref(0)
 const results = ref(0)
 const loading = ref(false)
 const teams = ref([])
-const startDate = ref('')
+const startDate = ref('2025-10-21')
 const endDate = ref('')
 const season = ref('')
 const teamFilter = ref('')
@@ -167,14 +167,6 @@ const toggleDark = () => {
 const resetTeams = () => {
   teamA.value = ''
   teamB.value = ''
-}
-
-const updateDates = () => {
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
-
-  startDate.value = yesterday.toISOString().split('T')[0]
 }
 
 const fetchTeams = async () => {
@@ -241,7 +233,6 @@ const fetchGames = async () => {
 onMounted(() => {
   fetchTeams()
   fetchGames()
-  updateDates()
 })
 </script>
 
