@@ -67,7 +67,7 @@ const props = defineProps({
 
 const winner = computed(() => {
   const finalScore = props.game?.final_score || '0-0'
-  const [homeScore, visitorScore] = finalScore.split('-').map(Number)
+  const [visitorScore, homeScore] = finalScore.split('-').map(Number)
   if (homeScore > visitorScore) return 'home'
   if (visitorScore > homeScore) return 'visitor'
   return null
@@ -166,4 +166,10 @@ const extractPeriodScore = (periodStr) => {
 .ties {
   @apply p-3 bg-destructive/5 border border-destructive/20 rounded-lg;
 }
+
+.team-badge.winner {
+  @apply bg-green-500 text-white border-green-600 shadow-md ring-2 ring-green-500/50;
+  transform: scale(1.05);
+}
+
 </style>
