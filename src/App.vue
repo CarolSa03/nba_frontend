@@ -10,6 +10,18 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input v-model="startDate" type="date" placeholder="Start Date" />
             <Input v-model="endDate" type="date" placeholder="End Date" />
+            <div v-if="startDate && endDate" class="col-span-full flex justify-center pt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                :class="{ 'bg-primary text-primary-foreground': !sortDescending }"
+                @click="sortDescending = !sortDescending"
+                class="flex items-center gap-2"
+              >
+                <span class="h-4 w-4">{{ sortDescending ? '▼' : '▲' }}</span>
+                {{ sortDescending ? 'Newest First' : 'Oldest First' }}
+              </Button>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -66,7 +78,6 @@
             </div>
           </div>
 
-
           <div class="grid grid-cols-1 md:flex md:gap-4 items-end">
             <div class="flex-1">
               <Select v-model="viewType">
@@ -108,36 +119,36 @@
       </Card>
     </div>
 
-      <div v-if="loading" class="flex flex-col items-center justify-center py-24 text-center">
-        <div class="w-16 h-16 border-4 border-border border-t-primary rounded-full animate-spin mb-6"></div>
-        <p class="text-xl text-muted-foreground">Loading games...</p>
-      </div>
+    <div v-if="loading" class="flex flex-col items-center justify-center py-24 text-center">
+      <div class="w-16 h-16 border-4 border-border border-t-primary rounded-full animate-spin mb-6"></div>
+      <p class="text-xl text-muted-foreground">Loading games...</p>
+    </div>
 
-      <div v-else-if="!games.length" class="flex flex-col items-center justify-center py-24 text-center">
-        <h2 class="text-3xl font-bold text-muted-foreground mb-2">No games found</h2>
-      </div>
+    <div v-else-if="!games.length" class="flex flex-col items-center justify-center py-24 text-center">
+      <h2 class="text-3xl font-bold text-muted-foreground mb-2">No games found</h2>
+    </div>
 
-      <div v-else class="mt-8 space-y-4">
-        <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-          <p class="text-2xl font-bold">
-            {{ results }} {{ results === 1 ? 'game' : 'games' }} found
-            <span v-if="apiGames !== results" class="text-muted-foreground text-sm ml-2">
-              ({{ apiGames }} from API)
-            </span>
-          </p>
-          <Button @click="fetchGames" :disabled="loading" variant="outline" size="sm">
-            Refresh
-          </Button>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <GameCard
-            v-for="game in games"
-            :key="game.id || `${game.date}-${game.final_score}`"
-            :game="game"
-            :view-type="viewType"
-          />
-        </div>
+    <div v-else class="mt-8 space-y-4">
+      <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <p class="text-2xl font-bold">
+          {{ results }} {{ results === 1 ? 'game' : 'games' }} found
+          <span v-if="apiGames !== results" class="text-muted-foreground text-sm ml-2">
+            ({{ apiGames }} from API)
+          </span>
+        </p>
+        <Button @click="fetchGames" :disabled="loading" variant="outline" size="sm">
+          Refresh
+        </Button>
       </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <GameCard
+          v-for="game in games"
+          :key="game.id || `${game.date}-${game.final_score}`"
+          :game="game"
+          :view-type="viewType"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -158,6 +169,7 @@ import {
 import { Sun, Moon } from 'lucide-vue-next'
 import { useDark } from '@vueuse/core'
 
+const sortDescending = ref(true)
 const games = ref([])
 const apiGames = ref(0)
 const results = ref(0)
@@ -176,6 +188,9 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api
 const isDark = useDark({ selector: 'html' })
 
 watch([startDate, endDate, teamA, teamB, viewType, tiedOnly], () => {
+  if (!startDate.value || !endDate.value) {
+    sortDescending.value = true
+  }
   console.log('Watch triggered, tiedOnly:', tiedOnly.value);
   fetchGames();
 }, { deep: true });
@@ -231,7 +246,13 @@ const fetchGames = async () => {
       )
     }
 
-    filteredGames.sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (startDate.value && endDate.value) {
+      filteredGames.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return sortDescending.value ? (dateB - dateA) : (dateA - dateB);
+      });
+    }
 
     games.value = filteredGames
     apiGames.value = data.api_games || 0
