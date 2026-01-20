@@ -1,3 +1,52 @@
+<script setup>
+import { onMounted } from 'vue'
+import GameCard from './components/GameCard.vue'
+import { Card, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select'
+import { Sun, Moon } from 'lucide-vue-next'
+import { useDark } from '@vueuse/core'
+import { useTeams } from '@/composables/useTeams'
+import { useGames } from '@/composables/useGames'
+import { useGameFilters } from '@/composables/useGameFilters'
+
+const isDark = useDark({ selector: 'html' })
+
+const { teams, loadTeams } = useTeams()
+const { games, apiGames, loading, resultsCount, fetchGames } = useGames()
+const {
+  startDate,
+  endDate,
+  teamA,
+  teamB,
+  viewType,
+  tiedOnly,
+  sortDescending,
+  resetTeams,
+  getFilters
+} = useGameFilters(() => handleSearch())
+
+function handleSearch() {
+  fetchGames(getFilters())
+}
+
+const toggleDark = () => {
+  isDark.value = !isDark.value
+}
+
+onMounted(() => {
+  loadTeams()
+})
+</script>
+
 <template>
   <div class="nba-ties min-h-screen bg-background text-foreground p-4 md:p-8 max-w-7xl mx-auto">
     <div class="text-center mb-12">
@@ -11,9 +60,9 @@
             <Input v-model="startDate" type="date" placeholder="Start Date" />
             <Input v-model="endDate" type="date" placeholder="End Date" />
             <div v-if="startDate && endDate" class="col-span-full flex justify-center pt-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 :class="{ 'bg-primary text-primary-foreground': !sortDescending }"
                 @click="sortDescending = !sortDescending"
                 class="flex items-center gap-2"
@@ -66,10 +115,10 @@
                 Clear teams
               </Button>
 
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                @click="toggleDark" 
+              <Button
+                variant="ghost"
+                size="sm"
+                @click="toggleDark"
                 class="w-10 h-10 p-0 rounded-full hover:bg-accent hover:scale-105 transition-all duration-200"
               >
                 <Moon class="h-5 w-5" v-if="isDark" />
@@ -107,10 +156,10 @@
 
           <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t items-start sm:items-center justify-between">
             <div class="flex gap-3 w-full sm:w-auto">
-              <Button variant="outline" @click="fetchTeams" :disabled="loading" class="flex-1 sm:flex-none">
+              <Button variant="outline" @click="loadTeams" :disabled="loading" class="flex-1 sm:flex-none">
                 Teams
               </Button>
-              <Button @click="fetchGames" :disabled="loading" class="flex-1 sm:flex-none">
+              <Button @click="handleSearch" :disabled="loading" class="flex-1 sm:flex-none">
                 {{ loading ? 'Searching...' : 'Search' }}
               </Button>
             </div>
@@ -131,12 +180,12 @@
     <div v-else class="mt-8 space-y-4">
       <div class="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <p class="text-2xl font-bold">
-          {{ results }} {{ results === 1 ? 'game' : 'games' }} found
-          <span v-if="apiGames !== results" class="text-muted-foreground text-sm ml-2">
+          {{ resultsCount }} {{ resultsCount === 1 ? 'game' : 'games' }} found
+          <span v-if="apiGames !== resultsCount" class="text-muted-foreground text-sm ml-2">
             ({{ apiGames }} from API)
           </span>
         </p>
-        <Button @click="fetchGames" :disabled="loading" variant="outline" size="sm">
+        <Button @click="handleSearch" :disabled="loading" variant="outline" size="sm">
           Refresh
         </Button>
       </div>
@@ -151,122 +200,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted, watch } from 'vue'
-import GameCard from './GameCard.vue'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem
-} from '@/components/ui/select'
-import { Sun, Moon } from 'lucide-vue-next'
-import { useDark } from '@vueuse/core'
-
-const sortDescending = ref(true)
-const games = ref([])
-const apiGames = ref(0)
-const results = ref(0)
-const loading = ref(false)
-const teams = ref([])
-const startDate = ref('2025-10-21')
-const endDate = ref('')
-const season = ref('')
-const teamA = ref('')
-const teamB = ref('')
-const viewType = ref('quarters')
-const tiedOnly = ref(false)
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/';
-
-const isDark = useDark({ selector: 'html' })
-
-watch([startDate, endDate, teamA, teamB, viewType, tiedOnly], () => {
-  if (!startDate.value || !endDate.value) {
-    sortDescending.value = true
-  }
-  console.log('Watch triggered, tiedOnly:', tiedOnly.value);
-  fetchGames();
-}, { deep: true });
-
-const toggleDark = () => {
-  isDark.value = !isDark.value
-}
-
-const resetTeams = () => {
-  teamA.value = ''
-  teamB.value = ''
-}
-
-const fetchTeams = async () => {
-  try {
-    const res = await fetch(`${API_BASE}/api/teams`);
-    const data = await res.json()
-    teams.value = data.data || []
-  } catch (e) {
-    console.error('Teams error:', e)
-  }
-}
-
-const fetchGames = async () => {
-  loading.value = true
-  try {
-    const params = new URLSearchParams()
-    if (startDate.value) params.append('start_date', startDate.value)
-    if (endDate.value) params.append('end_date', endDate.value)
-    if (tiedOnly.value) params.append('tied_only', 'true')
-    params.append('view', viewType.value)
-
-    const res = await fetch(`${API_BASE}/api/games?${params}`)
-    const data = await res.json()
-
-    let filteredGames = data.games || []
-
-    if (tiedOnly.value) {
-      filteredGames = filteredGames.filter(game => game.has_ot === true)
-    }
-
-    if (teamA.value && teamB.value) {
-      filteredGames = filteredGames.filter(game =>
-        (game.home_team.includes(teamA.value) && game.visitor_team.includes(teamB.value)) ||
-        (game.home_team.includes(teamB.value) && game.visitor_team.includes(teamA.value))
-      )
-    } else if (teamA.value || teamB.value) {
-      const teamNames = [teamA.value, teamB.value].filter(Boolean)
-      filteredGames = filteredGames.filter(game =>
-        teamNames.some(team =>
-          game.home_team.includes(team) || game.visitor_team.includes(team)
-        )
-      )
-    }
-
-    if (startDate.value && endDate.value) {
-      filteredGames.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return sortDescending.value ? (dateB - dateA) : (dateA - dateB);
-      });
-    }
-
-    games.value = filteredGames
-    apiGames.value = data.api_games || 0
-    results.value = filteredGames.length
-
-  } catch (error) {
-    console.error('Fetch error:', error)
-    alert('API connection error')
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  fetchTeams()
-})
-</script>
