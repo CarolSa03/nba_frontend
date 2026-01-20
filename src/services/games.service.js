@@ -9,6 +9,6 @@ export const gamesService = {
     if (filters.tiedOnly) params.tied_only = 'true'
     params.view = filters.viewType || 'quarters'
 
-    return await apiClient.get('games', params)
+    return await apiClient.get('/games', params)
   }
 }
